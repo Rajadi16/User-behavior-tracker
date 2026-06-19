@@ -1,3 +1,6 @@
 node_modules/
+.next/
 .env
+dashboard.log
+dashboard.err
 npm-debug.log*

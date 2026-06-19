@@ -25,11 +25,15 @@ const eventSchema = new mongoose.Schema(
     coordinates: {
       x: {
         type: Number,
-        required: true
+        required: function () {
+          return this.event_type === 'click';
+        }
       },
       y: {
         type: Number,
-        required: true
+        required: function () {
+          return this.event_type === 'click';
+        }
       }
     }
   },
