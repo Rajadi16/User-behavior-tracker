@@ -1,12 +1,13 @@
 import axios from 'axios';
 import Link from 'next/link';
 import { ArrowRight, Database, MousePointerClick } from 'lucide-react';
+import { apiUrl } from '../src/config/api';
 
 export const dynamic = 'force-dynamic';
 
 async function getSessions() {
   try {
-    const response = await axios.get('http://localhost:5000/api/events/sessions');
+    const response = await axios.get(apiUrl('/api/events/sessions'));
     return { sessions: response.data, error: null };
   } catch (error) {
     return { sessions: [], error: 'Unable to load sessions from the API.' };

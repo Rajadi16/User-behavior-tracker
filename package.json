@@ -6,6 +6,7 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",
+    "dev:all": "node scripts/dev-all.js",
     "dashboard": "next dev -p 3000",
     "dashboard:build": "next build"
   },

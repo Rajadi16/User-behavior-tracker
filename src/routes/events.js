@@ -1,30 +1,11 @@
 const express = require('express');
-const Event = require('../models/Event');
+const eventStore = require('../stores/eventStore');
 
 const router = express.Router();
 
 router.get('/sessions', async (req, res) => {
   try {
-    const sessions = await Event.aggregate([
-      {
-        $group: {
-          _id: '$session_id',
-          totalEvents: { $sum: 1 }
-        }
-      },
-      {
-        $project: {
-          _id: 0,
-          session_id: '$_id',
-          totalEvents: 1
-        }
-      },
-      {
-        $sort: {
-          session_id: 1
-        }
-      }
-    ]);
+    const sessions = await eventStore.getSessions();
 
     res.json(sessions);
   } catch (error) {
@@ -35,9 +16,7 @@ router.get('/sessions', async (req, res) => {
 
 router.get('/sessions/:sessionId', async (req, res) => {
   try {
-    const events = await Event.find({ session_id: req.params.sessionId }).sort({
-      timestamp: 1
-    });
+    const events = await eventStore.getSessionEvents(req.params.sessionId);
 
     res.json(events);
   } catch (error) {
@@ -48,17 +27,7 @@ router.get('/sessions/:sessionId', async (req, res) => {
 
 router.get('/heatmap/:pageUrl', async (req, res) => {
   try {
-    const events = await Event.find(
-      {
-        event_type: 'click',
-        page_url: req.params.pageUrl
-      },
-      {
-        _id: 0,
-        coordinates: 1,
-        timestamp: 1
-      }
-    ).sort({ timestamp: 1 });
+    const events = await eventStore.getHeatmapEvents(req.params.pageUrl);
 
     res.json(events);
   } catch (error) {
@@ -69,7 +38,27 @@ router.get('/heatmap/:pageUrl', async (req, res) => {
 
 router.post('/', async (req, res) => {
   try {
-    const event = await Event.create(req.body);
+    const {
+      session_id,
+      event_type,
+      page_url,
+      timestamp,
+      coordinates,
+      page_coordinates,
+      viewport,
+      metadata
+    } = req.body;
+
+    const event = await eventStore.createEvent({
+      session_id,
+      event_type,
+      page_url,
+      timestamp,
+      coordinates: event_type === 'click' ? coordinates : undefined,
+      page_coordinates: event_type === 'click' ? page_coordinates : undefined,
+      viewport,
+      metadata: metadata && typeof metadata === 'object' ? metadata : {}
+    });
 
     res.status(201).json({
       message: 'Event saved successfully',

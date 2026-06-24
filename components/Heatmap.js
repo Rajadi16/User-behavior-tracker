@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { Flame } from 'lucide-react';
+import { apiUrl } from '../src/config/api';
 
 const REFERENCE_WIDTH = 1440;
 const REFERENCE_HEIGHT = 900;
@@ -11,7 +12,7 @@ async function getClickEvents(pageUrl) {
 
   try {
     const response = await axios.get(
-      `http://localhost:5000/api/events/heatmap/${encodeURIComponent(pageUrl)}`
+      apiUrl(`/api/events/heatmap/${encodeURIComponent(pageUrl)}`)
     );
     return { clicks: response.data, error: null };
   } catch (error) {

@@ -44,10 +44,30 @@ Install dependencies:
 npm.cmd install
 ```
 
+If you are in the parent assignment folder (`C:\Learning\Assignment`), you can start both the API and dashboard with one command:
+
+```powershell
+npm.cmd start
+```
+
+That parent-level command runs the API on `http://localhost:5000` and the dashboard on `http://localhost:3000`.
+
 Create an environment file:
 
 ```powershell
 copy .env.example .env
+```
+
+Optional environment values:
+
+```text
+PORT=5000
+MONGODB_URI=mongodb://127.0.0.1:27017/user_analytics
+CORS_ORIGIN=*
+API_BASE_URL=http://localhost:5000
+MONGODB_TIMEOUT_MS=3000
+REQUIRE_MONGODB=false
+LOCAL_EVENTS_FILE=data/events.json
 ```
 
 Make sure MongoDB is running locally, then start the backend API:
@@ -81,6 +101,8 @@ http://localhost:5000/demo/
 ```
 
 Click around the demo page, then open the dashboard to view sessions and heatmap data.
+
+If MongoDB is not reachable, the API automatically uses `data/events.json` for local development unless `REQUIRE_MONGODB=true` is set.
 
 ## API Endpoints
 
@@ -139,10 +161,13 @@ Add the standalone tracker to any page:
 <script src="http://localhost:5000/tracker/tracker.js"></script>
 ```
 
-The tracker sends events to:
+By default, the tracker sends events to `/api/events` on the same origin that served `tracker.js`. You can also override the endpoint:
 
-```text
-http://localhost:5000/api/events
+```html
+<script
+  src="http://localhost:5000/tracker/tracker.js"
+  data-endpoint="http://localhost:5000/api/events"
+></script>
 ```
 
 ## Assumptions and Trade-offs
@@ -150,7 +175,9 @@ http://localhost:5000/api/events
 - `localStorage` is used for session persistence because it is simple and works well for this assignment scope.
 - Click heatmap coordinates are rendered against a fixed reference size of `1440 x 900` and scaled into the dashboard container.
 - The tracker uses `navigator.sendBeacon()` so events can be sent without blocking page navigation.
+- The tracker falls back to `fetch(..., { keepalive: true })` if Beacon is unavailable or rejects the event.
 - The API allows CORS for local testing and demo usage.
+- MongoDB is the primary store. For local convenience, the API falls back to `data/events.json` when MongoDB is unavailable.
 - Authentication, rate limiting, batching, and production deployment configuration are outside the current assignment scope.
 
 ## Useful Commands

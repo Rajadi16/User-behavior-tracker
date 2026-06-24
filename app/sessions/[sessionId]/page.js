@@ -1,13 +1,14 @@
 import axios from 'axios';
 import Link from 'next/link';
 import { ArrowLeft, Clock, ExternalLink, MousePointerClick } from 'lucide-react';
+import { apiUrl } from '../../../src/config/api';
 
 export const dynamic = 'force-dynamic';
 
 async function getSessionEvents(sessionId) {
   try {
     const response = await axios.get(
-      `http://localhost:5000/api/events/sessions/${encodeURIComponent(sessionId)}`
+      apiUrl(`/api/events/sessions/${encodeURIComponent(sessionId)}`)
     );
     return { events: response.data, error: null };
   } catch (error) {
